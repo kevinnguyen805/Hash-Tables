@@ -32,7 +32,10 @@ class HashTable:
 
         OPTIONAL STRETCH: Research and implement DJB2
         '''
-        pass
+        hash = 5381
+        for c in key:
+            hash = (hash*33) + ord(c)
+        return hash
 
 
     def _hash_mod(self, key):
@@ -51,7 +54,30 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        new_hash_index = LinkedPair(key, value)
+        hash_index = self._hash_mod(key)
+
+        if self.storage[hash_index] is not None:
+            if self.storage[hash_index].key == key:
+                self.storage[hash_index] = new_hash_index
+                return 
+            current = self.storage[hash_index]
+            while current.next is not None:
+                if current.key == key:
+                    current = new_hash_index
+                    break
+                current = current.next 
+            current.next = new_hash_index
+        else:
+            self.storage[hash_index] = new_hash_index
+        
+
+        # hash_index = self.storage[self._hash_mod(key)]
+        # if hash_index == None:
+        #     hash_index = LinkedPair(key, value)
+        #     self.storage[self._hash_mod(key)] = hash_index            
+        
+
 
 
 
@@ -63,7 +89,20 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        bucket = self._hash_mod(key)
+        if self.storage[bucket] is not None:
+            if self.storage[bucket].key == key:
+                self.storage[bucket] = None 
+                return 
+            else: 
+                while self.storage[bucket].key is not key and self.storage[bucket] is not None:
+                    self.storage[bucket] = self.storage[bucket].next 
+                self.storage[bucket] = None 
+                return
+        else:
+            print("The key is not found")
+
+
 
 
     def retrieve(self, key):
@@ -74,7 +113,21 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        bucket_index = self._hash_mod(key)
+        
+        if self.storage[bucket_index] is not None:
+            # if the first node at the bucket is equal to the key = there is only 1 node = return value
+            if self.storage[bucket_index].key == key:
+                return self.storage[bucket_index].value
+            # if the first node doesn't equal to the key = iterate through bucket (linked list) until you get the bucket
+            else: 
+                bucket = self.storage[bucket_index]
+                while bucket.key is not key and bucket is not None:
+                    bucket = bucket.next 
+                return bucket.value
+        else:
+            return None 
+        # return self.storage[self._hash_mod(key)].value
 
 
     def resize(self):
@@ -84,7 +137,19 @@ class HashTable:
 
         Fill this in.
         '''
-        pass
+        temp_storage = self.storage
+        self.capacity = self.capacity * 2
+        self.storage = [None] * self.capacity
+
+        for bucket in temp_storage:
+            if bucket is None:
+                pass
+            elif bucket.next is None: 
+                self.insert(bucket.key, bucket.value)
+            else:
+                while bucket is not None:
+                    self.insert(bucket.key, bucket.value)
+                    bucket = bucket.next
 
 
 
